@@ -5,6 +5,7 @@ export interface ModuleOptions {
     redirectUri: string
 }
 
+// noinspection JSUnusedGlobalSymbols, implicility called
 export default defineNuxtModule<ModuleOptions>({
     meta: {
         name: 'nuxt-lti',
