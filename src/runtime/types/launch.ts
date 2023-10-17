@@ -1,4 +1,4 @@
-export type LtiLaunch = {
+export type LtiOidcInitiation = {
     iss: string,
     loginHint: string,
     deploymentId: string
@@ -8,7 +8,7 @@ export type LtiLaunch = {
     ltiStorageTarget: string
 }
 
-export interface CanvasLtiOidcLaunch extends LtiLaunch {
+export interface CanvasLtiOidcLaunch extends LtiOidcInitiation {
     canvasEnvironment: string,
     canvasRegion: string
 }

@@ -3,13 +3,13 @@ import _ from "lodash";
 import crypto from "crypto";
 import {useRuntimeConfig} from "#imports";
 import {ModuleOptions} from "../../module";
-import {LtiLaunch, LtiOidcCallback} from "~/src/runtime/types/launch";
+import {LtiOidcInitiation, LtiOidcCallback} from "~/src/runtime/types/launch";
 
 const startLaunch = async (event: H3Event): Promise<string> => {
     const options = useRuntimeConfig().public.lti as ModuleOptions
 
     const body = await readBody(event)
-    const launch = _.mapKeys(body, (_value, key) => _.camelCase(key)) as LtiLaunch
+    const launch = _.mapKeys(body, (_v, key) => _.camelCase(key)) as LtiOidcInitiation
     const origin = event.headers.get("origin")
 
     if (launch.iss != "https://canvas.instructure.com" || origin == null) {
@@ -43,7 +43,7 @@ const startLaunch = async (event: H3Event): Promise<string> => {
 const readCallback = async (event: H3Event): Promise<LtiOidcCallback> => {
     const body = await readBody(event)
 
-    return _.mapKeys(body, (value, key) => _.camelCase(key)) as LtiOidcCallback
+    return _.mapKeys(body, (_v, key) => _.camelCase(key)) as LtiOidcCallback
 }
 
 export const useLti = () => {
