@@ -1,15 +1,19 @@
 import {defineNuxtModule} from "@nuxt/kit";
+import defu from "defu";
 
 export interface ModuleOptions {
+    redirectUri: string
 }
 
 export default defineNuxtModule<ModuleOptions>({
-	meta: {
-		name: 'nuxt-lti',
-		configKey: 'lti',
-	},
-	defaults: {},
-	setup(options, nuxt) {
-
-	}
+    meta: {
+        name: 'nuxt-lti',
+        configKey: 'lti',
+    },
+    setup(options, nuxt) {
+        // Inject module options in RuntimeConfig
+        nuxt.options.runtimeConfig.public.lti = defu(nuxt.options.runtimeConfig.public.lti as ModuleOptions, {
+            redirectUri: options.redirectUri
+        })
+    }
 })
