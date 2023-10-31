@@ -1,4 +1,4 @@
-import {JwtPayload} from "jsonwebtoken";
+import type { JwtPayload } from "jwt-decode"
 
 export interface LtiMessage extends JwtPayload {
     type: MessageType,

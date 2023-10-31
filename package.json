@@ -38,7 +38,7 @@
 		"@types/lodash": "^4.14.199",
 		"@types/node": "^18.18.1",
 		"changelogen": "^0.5.5",
-		"jsonwebtoken": "^9.0.2",
+		"jwt-decode": "^4.0.0",
 		"lodash": "^4.17.21",
 		"eslint": "^8.50.0",
 		"nuxt": "^3.7.4"
