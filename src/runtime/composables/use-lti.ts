@@ -1,8 +1,9 @@
-import { createError, H3Event, readBody } from "h3"
+import {createError, H3Event, readBody} from "h3"
 import _ from "lodash"
-import { type LtiOidcCallback, type LtiOidcInitiation } from "~/src/runtime/types/launch"
-import { jwtDecode } from "jwt-decode"
-import type { LtiMessage } from "~/src/runtime/types/message"
+import {type LtiOidcCallback, type LtiOidcInitiation} from "~/src/runtime/types/launch"
+import {jwtDecode} from "jwt-decode"
+import type {LtiMessage} from "~/src/runtime/types/message"
+import {useAsyncData, useRequestEvent} from "#app";
 
 const prepareLaunch = async (
 	event: H3Event,
@@ -41,7 +42,30 @@ const prepareLaunch = async (
 	return authorizeUrl.href
 }
 
-const launch = (authorizeUrl: string): void => {
+const launch = async (redirectUri: string) => {
+	const {data} = await useAsyncData(async () => {
+		if (!process.server) {
+			return
+		}
+
+		const event = useRequestEvent()
+
+		return await prepareLaunch(event, redirectUri)
+	})
+
+	if (process.client) {
+		if (data.value != null) {
+			redirectLaunch(data.value)
+		} else {
+			throw createError({
+				statusCode: 400,
+				statusMessage: "Something went wrong when launching LTI"
+			})
+		}
+	}
+}
+
+const redirectLaunch = (authorizeUrl: string): void => {
 	const _authorizeUrl = new URL(authorizeUrl)
 
 	function csrf(key: string): void {
@@ -77,16 +101,47 @@ const validateCallback = (callback: LtiOidcCallback): boolean => {
 	return true
 }
 
+const handleCallback = async (): Promise<LtiOidcCallback | null> => {
+	const {data} = await useAsyncData(async () => {
+		if (!process.server) {
+			return
+		}
+
+		const event = useRequestEvent()
+		return await readCallback(event)
+	})
+
+	if (process.client && data.value?.idToken) {
+		const callback = data.value
+		const validation = validateCallback(callback)
+
+		if (validation) {
+			return callback
+		} else {
+			throw createError({
+				statusCode: 400,
+				statusMessage: "Token validation failed"
+			})
+		}
+	}
+
+	return null
+}
+
 export const useLti = (): {
-	readCallback: (event: H3Event) => Promise<LtiOidcCallback>
-	validateCallback: (callback: LtiOidcCallback) => boolean
-	launch: (authorizeUrl: string) => void
+	handleCallback: () => Promise<LtiOidcCallback | null>
+	launch: (redirectUri: string) => Promise<void>
 	prepareLaunch: (event: H3Event, redirectUri: string) => Promise<string>
+	readCallback: (event: H3Event) => Promise<LtiOidcCallback>
+	redirectLaunch: (authorizeUrl: string) => void
+	validateCallback: (callback: LtiOidcCallback) => boolean
 } => {
 	return {
-		prepareLaunch,
+		handleCallback,
 		launch,
+		prepareLaunch,
 		readCallback,
+		redirectLaunch,
 		validateCallback,
 	}
 }

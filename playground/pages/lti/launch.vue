@@ -3,23 +3,11 @@
 </template>
 
 <script setup lang="ts">
-import {useAsyncData, useRequestEvent} from "#app";
+import {useRuntimeConfig} from "#app";
 import useLti from "../../../src/runtime/composables/use-lti";
 
-const { prepareLaunch, launch } = useLti()
+const {launch} = useLti()
 
-const { data } = await useAsyncData(async () => {
-	if (!process.server) {
-		return
-	}
-
-	const runtimeConfig = useRuntimeConfig()
-	const event = useRequestEvent()
-
-	return await prepareLaunch(event, runtimeConfig.redirectUri)
-})
-
-if (process.client && data.value != null) {
-	launch(data.value)
-}
+const runtimeConfig = useRuntimeConfig()
+launch(runtimeConfig.redirectUri)
 </script>

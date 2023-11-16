@@ -5,9 +5,6 @@ const certificate = process.env.SSL_CERT_PATH
 
 export default defineNuxtConfig({
     modules: ['../src/module'],
-    lti: {
-        redirectUri: "https://localhost:3000"
-    },
     devtools: {enabled: true},
     typescript: {
         strict: true
@@ -19,5 +16,8 @@ export default defineNuxtConfig({
         }
     },
     ssr: true,
-    pages: true
+    pages: true,
+	runtimeConfig: {
+		redirectUri: "https://localhost:3000"
+	}
 })
